@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/bopher/mongoutils"
+	"github.com/gomig/mongoutils"
 )
 
 func pretty(v any) (string, error) {

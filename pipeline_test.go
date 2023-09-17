@@ -3,7 +3,7 @@ package mongoutils_test
 import (
 	"testing"
 
-	"github.com/bopher/mongoutils"
+	"github.com/gomig/mongoutils"
 )
 
 func TestPipeline(t *testing.T) {

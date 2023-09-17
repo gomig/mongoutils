@@ -66,16 +66,16 @@ func prettyLog(data any) {
 	fmt.Println(string(_bytes))
 }
 
-// modelSafe convert v to github.com/bopher/mongoutils.Model or panic
+// modelSafe convert v to github.com/gomig/mongoutils.Model or panic
 func modelSafe[T any](v T) Model {
 	if _v, ok := any(v).(Model); !ok {
-		panic("T must implements github.com/bopher/mongoutils.Model")
+		panic("T must implements github.com/gomig/mongoutils.Model")
 	} else {
 		return _v
 	}
 }
 
-// Get new instance of github.com/bopher/mongoutils.Model or panic if T not implement model
+// Get new instance of github.com/gomig/mongoutils.Model or panic if T not implement model
 func typeModelSafe[T any]() Model {
 	return modelSafe(new(T))
 }

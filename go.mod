@@ -1,4 +1,4 @@
-module github.com/bopher/mongoutils
+module github.com/gomig/mongoutils
 
 go 1.21
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/bopher/mongoutils"
+	"github.com/gomig/mongoutils"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

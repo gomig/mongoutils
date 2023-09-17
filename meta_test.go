@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bopher/mongoutils"
+	"github.com/gomig/mongoutils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

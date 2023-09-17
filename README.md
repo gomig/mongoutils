@@ -164,7 +164,7 @@ Base interface for mongodb model.
 
 ```go
 // Usage:
-import "github.com/bopher/mongoutils"
+import "github.com/gomig/mongoutils"
 type Person struct{
  mongoutils.BaseModel  `bson:",inline"`
 }
@@ -237,7 +237,7 @@ Two `PrepareInsert` and `PrepareUpdate` must called before save model to databas
 Document builder is a helper type for creating mongo document (`primitive.D`) with _chained_ methods.
 
 ```go
-import "github.com/bopher/mongoutils"
+import "github.com/gomig/mongoutils"
 doc := mongoutils.NewDoc()
 doc.
     Add("name", "John").
@@ -397,7 +397,7 @@ Build() primitive.D
 Pipeline builder is a helper type for creating mongo pipeline (`[]primitive.D`) with _chained_ methods.
 
 ```go
-import "github.com/bopher/mongoutils"
+import "github.com/gomig/mongoutils"
 pipe := mongoutils.NewPipe()
 pipe.
     Add(func(d mongoutils.MongoDoc) mongoutils.MongoDoc{
@@ -671,7 +671,7 @@ Build() mongo.Pipeline
 meta counter builder for mongo docs.
 
 ```go
-import "github.com/bopher/mongoutils"
+import "github.com/gomig/mongoutils"
 mCounter := mongoutils.NewMetaCounter()
 mCounter.Add("services", "relations", id1, 2)
 mCounter.Add("services", "relations", id1, 1)
@@ -720,7 +720,7 @@ fmt.Println(mCounter.Build())
 meta setter builder for mongo docs.
 
 ```go
-import "github.com/bopher/mongoutils"
+import "github.com/gomig/mongoutils"
 setter := mongoutils.NewMetaSetter()
 setter.Add("test", "activity", id1, date)
 setter.Add("test", "activity", nil, date) // ignored
@@ -768,7 +768,7 @@ func Find[T any](
 ) ([]T, error)
 
 // Example
-import "github.com/bopher/mongoutils"
+import "github.com/gomig/mongoutils"
 type User struct{
     mongoutils.BaseModel `bson:",inline"`
     Name string `bson:"name" json:"name"`
