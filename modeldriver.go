@@ -46,6 +46,16 @@ func (*EmptyModel) IsDeletable() bool {
 	return false
 }
 
+func (*EmptyModel) NeedBackup() bool {
+	return false
+}
+
+func (*EmptyModel) MarkBackup() {
+}
+
+func (*EmptyModel) UnMarkBackup() {
+}
+
 func (*EmptyModel) Cleanup() {}
 
 func (*EmptyModel) PrepareInsert() {}

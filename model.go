@@ -31,6 +31,12 @@ type Model interface {
 	// IsDeletable check if document is deletable
 	// by default returns false on BaseModel
 	IsDeletable() bool
+	// NeedBackup check if record need backup
+	NeedBackup() bool
+	// MarkBackup set backup state to current date
+	MarkBackup()
+	// UnMarkBackup set backup state to nil
+	UnMarkBackup()
 	// Cleanup document before save
 	// e.g set document field nil for ignore saving
 	Cleanup()

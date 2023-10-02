@@ -10,9 +10,10 @@ import (
 
 // BaseModel implementation with id and timestamp
 type BaseModel struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
-	CreatedAt time.Time          `bson:"created_at" json:"created_at"`
-	UpdatedAt *time.Time         `bson:"updated_at" json:"updated_at"`
+	ID         primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
+	CreatedAt  time.Time          `bson:"created_at" json:"created_at"`
+	UpdatedAt  *time.Time         `bson:"updated_at" json:"updated_at"`
+	LastBackup *time.Time         `bson:"last_backup" json:"last_backup"`
 }
 
 func (*BaseModel) TypeName() string {
@@ -55,10 +56,24 @@ func (*BaseModel) IsDeletable() bool {
 	return false
 }
 
+func (model *BaseModel) NeedBackup() bool {
+	return model.LastBackup == nil
+}
+
+func (model *BaseModel) MarkBackup() {
+	t := time.Now().UTC()
+	model.LastBackup = &t
+}
+
+func (model *BaseModel) UnMarkBackup() {
+	model.LastBackup = nil
+}
+
 func (*BaseModel) Cleanup() {}
 
 func (model *BaseModel) PrepareInsert() {
 	model.CreatedAt = time.Now().UTC()
+	model.UnMarkBackup()
 }
 
 func (model *BaseModel) PrepareUpdate(ghost bool) {
@@ -66,6 +81,7 @@ func (model *BaseModel) PrepareUpdate(ghost bool) {
 		now := time.Now().UTC()
 		model.UpdatedAt = &now
 	}
+	model.UnMarkBackup()
 }
 
 func (*BaseModel) OnInsert(ctx context.Context, opt ...MongoOption) {}
