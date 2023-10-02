@@ -75,9 +75,11 @@ func (model *BaseModel) PrepareUpdate(ghost bool) {
 			isChanged = true
 			b.SetChecksum(newCS)
 			b.UnMarkBackup()
+		} else {
+			isChanged = false
 		}
 	}
-	if !ghost || isChanged {
+	if !ghost && isChanged {
 		now := time.Now().UTC()
 		model.UpdatedAt = &now
 	}
