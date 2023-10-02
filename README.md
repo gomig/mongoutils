@@ -156,9 +156,11 @@ Match(v any) primitive.M
 
 Base interface for mongodb model.
 
-**Note:** You can inherit `EmptyModel` in your struct. `EmptyModel` implements all model methods.
+**Note:** You can inherit `EmptyModel` in your struct. `EmptyModel` implements all model methods and only contains `ID` field.
 
 **Note:** You can inherit `BaseModel` in your struct. `BaseModel` contains `_id`, `created_at`, `updated_at` fields and `SetID`, `NewId`, `PrepareInsert` and `PrepareUpdate`. you can override or implement other model method.
+
+**Note:** If your model also implement `BackupModel`, `BaseModel` automatically fill backup related data and `updated_at` only change if data back up model (`ToMap` method result) was changed.
 
 **Note**: Set `BaseModel` bson tag to `inline` for insert timestamps in document root.
 
@@ -166,7 +168,8 @@ Base interface for mongodb model.
 // Usage:
 import "github.com/gomig/mongoutils"
 type Person struct{
- mongoutils.BaseModel  `bson:",inline"`
+    mongoutils.BaseModel  `bson:",inline"`
+    Name string `bson:"name" json:"name"`
 }
 
 // override methods
@@ -204,19 +207,18 @@ IsEditable() bool
 // IsDeletable check if document is deletable
 // by default returns false on BaseModel
 IsDeletable() bool
-// NeedBackup check if record need backup
-NeedBackup() bool
-// MarkBackup set backup state to current date
-MarkBackup()
-// UnMarkBackup set backup state to nil
-UnMarkBackup()
 // Cleanup document before save
 // e.g set document field nil for ignore saving
 Cleanup()
-// PrepareInsert fill created_at before save (Pointer)
+// PrepareInsert called by mongoutils Repository before insert
+// this method fill created_at if not set on BaseModel
+// this method fill Checksum and LastBackup if LastBackup if model implement Backup
 PrepareInsert()
-// PrepareUpdate fill updated_at before save (Pointer)
-// in ghost mode updated_at field not changed
+// PrepareInsert called by mongoutils Repository before update
+// this method fill updated_at on BaseModel
+// updated_at not changed if model implement Backup and backup data not change
+// updated_at not changed if ghost mode is true
+// this method fill Checksum and LastBackup if LastBackup if model implement Backup
 PrepareUpdate(ghost bool)
 // OnInsert function to call before insert (Pointer)
 OnInsert(ctx context.Context, opt ...MongoOption)
@@ -237,6 +239,57 @@ OnDeleted(ctx context.Context, opt ...MongoOption)
 Two `PrepareInsert` and `PrepareUpdate` must called before save model to database.
 
 **Note**: if `true` passed to `PrepareUpdate` method, `updated_at` method not updated.
+
+## Backup Interface
+
+Backup interface to help backup records only if data changed. `BackupModel` contains following fields:
+
+- **checksum:** md5 checksum of normalized and sorted fields map.
+- **last_backup:** last backup date. this field will set to `nil` when data changed and must set when data backup done.
+
+**Cation:** Never return any struct field from `ToMap` method!
+
+```go
+// Usage:
+import "github.com/gomig/mongoutils"
+type Person struct{
+    mongoutils.BaseModel  `bson:",inline"`
+    Name string `bson:"name" json:"name"`
+}
+
+// must defined to enable backup
+func (me Person) ToMap() map[string]any{
+    return map[string]any{
+        "_id": me.ID,
+        "name": me.Name,
+        "created_at": me.CreatedAt,
+        "updated_at": me.UpdatedAt,
+    }
+}
+```
+
+### Available Backup methods
+
+```go
+// ToMap get model as map for backup
+// return nil or empty map to skip backup
+ToMap() map[string]any
+// CanBackup check if ToMap method not nil
+CanBackup() bool
+// MD5 calculate md5 checksum for model data
+// Returns empty string if CanBackup return false
+MD5() string
+// SetChecksum set model md5 checksum
+SetChecksum(string)
+// GetChecksum get model md5 checksum
+GetChecksum() string
+// NeedBackup check if record need backup
+NeedBackup() bool
+// MarkBackup set backup state to current date
+MarkBackup()
+// UnMarkBackup set backup state to nil
+UnMarkBackup()
+```
 
 ## Doc Builder
 

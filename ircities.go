@@ -14,7 +14,6 @@ import (
 // IrCity only implement model methods
 type IrCity struct {
 	EmptyModel `bson:"inline"`
-	ID         primitive.ObjectID  `bson:"_id" json:"_id"`
 	Code       uint                `bson:"code" json:"code"`
 	Name       string              `bson:"name" json:"name"`
 	CountyId   *primitive.ObjectID `bson:"county_id" json:"county_id"`

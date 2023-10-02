@@ -8,7 +8,9 @@ import (
 )
 
 // EmptyModel only implement model methods
-type EmptyModel struct{}
+type EmptyModel struct {
+	ID primitive.ObjectID `bson:"_id" json:"_id"`
+}
 
 func (*EmptyModel) TypeName() string {
 	return "unspecified"
@@ -30,12 +32,16 @@ func (*EmptyModel) Pipeline() MongoPipeline {
 	return NewPipe()
 }
 
-func (*EmptyModel) NewId() {}
+func (model *EmptyModel) NewId() {
+	model.ID = primitive.NewObjectID()
+}
 
-func (*EmptyModel) SetID(id primitive.ObjectID) {}
+func (model *EmptyModel) SetID(id primitive.ObjectID) {
+	model.ID = id
+}
 
-func (*EmptyModel) GetID() primitive.ObjectID {
-	return primitive.NilObjectID
+func (model *EmptyModel) GetID() primitive.ObjectID {
+	return model.ID
 }
 
 func (*EmptyModel) IsEditable() bool {
@@ -44,16 +50,6 @@ func (*EmptyModel) IsEditable() bool {
 
 func (*EmptyModel) IsDeletable() bool {
 	return false
-}
-
-func (*EmptyModel) NeedBackup() bool {
-	return false
-}
-
-func (*EmptyModel) MarkBackup() {
-}
-
-func (*EmptyModel) UnMarkBackup() {
 }
 
 func (*EmptyModel) Cleanup() {}

@@ -31,19 +31,18 @@ type Model interface {
 	// IsDeletable check if document is deletable
 	// by default returns false on BaseModel
 	IsDeletable() bool
-	// NeedBackup check if record need backup
-	NeedBackup() bool
-	// MarkBackup set backup state to current date
-	MarkBackup()
-	// UnMarkBackup set backup state to nil
-	UnMarkBackup()
 	// Cleanup document before save
 	// e.g set document field nil for ignore saving
 	Cleanup()
-	// PrepareInsert fill created_at before save
+	// PrepareInsert called by mongoutils Repository before insert
+	// this method fill created_at if not set on BaseModel
+	// this method fill Checksum and LastBackup if LastBackup if model implement Backup
 	PrepareInsert()
-	// PrepareUpdate fill updated_at before save
-	// in ghost mode updated_at field not changed
+	// PrepareInsert called by mongoutils Repository before update
+	// this method fill updated_at on BaseModel
+	// updated_at not changed if model implement Backup and backup data not change
+	// updated_at not changed if ghost mode is true
+	// this method fill Checksum and LastBackup if LastBackup if model implement Backup
 	PrepareUpdate(ghost bool)
 	// OnInsert function to call before insert
 	OnInsert(ctx context.Context, opt ...MongoOption)
