@@ -160,7 +160,7 @@ Base interface for mongodb model.
 
 **Note:** You can inherit `BaseModel` in your struct. `BaseModel` contains `_id`, `created_at`, `updated_at` fields and `SetID`, `NewId`, `PrepareInsert` and `PrepareUpdate`. you can override or implement other model method.
 
-**Note:** If your model also implement `BackupModel`, `BaseModel` automatically fill backup related data and `updated_at` only change if data back up model (`ToMap` method result) was changed.
+**Note:** If your model also implement `BackupModel`, `BaseModel` automatically fill backup related data and `updated_at` only changes if data back up model (`ToMap` method result) was changed.
 
 **Note**: Set `BaseModel` bson tag to `inline` for insert timestamps in document root.
 
@@ -240,7 +240,33 @@ Two `PrepareInsert` and `PrepareUpdate` must called before save model to databas
 
 **Note**: if `true` passed to `PrepareUpdate` method, `updated_at` method not updated.
 
-## Backup Interface
+## SoftDeletes
+
+To soft delete models you must embed `SoftDeleteModel` in your struct. soft delte model contains `deleted_at` field and shown delete state of field.
+
+**Cation:** To soft delete model you must call `SoftDelete()` method of model and `Update` instead of `Delete` on database.
+
+```go
+// Usage:
+import "github.com/gomig/mongoutils"
+type Person struct{
+    mongoutils.SoftDeleteModel `bson:",inline"`
+    Name string `bson:"name" json:"name"`
+}
+
+// soft delete
+john := Person{Name: "John"}
+john.SoftDelete()
+db.Update(john)
+
+// restore records
+john.Restore()
+
+// check if deleted
+deleted := john.IsDeleted()
+```
+
+## Model Backup Interface
 
 Backup interface to help backup records only if data changed. `BackupModel` contains following fields:
 
@@ -249,11 +275,13 @@ Backup interface to help backup records only if data changed. `BackupModel` cont
 
 **Cation:** Never return any struct field from `ToMap` method!
 
+**Note:** to handle deletion backup you must implement `SoftDelete`.
+
 ```go
 // Usage:
 import "github.com/gomig/mongoutils"
 type Person struct{
-    mongoutils.BaseModel  `bson:",inline"`
+    mongoutils.BackupModel  `bson:",inline"`
     Name string `bson:"name" json:"name"`
 }
 
@@ -715,6 +743,42 @@ Project(projects any) MongoPipeline
 // Example:
 pipe.Project(nil) // skiped
 pipe.Project(primitve.M{"password": 0}) // remove password from result
+```
+
+#### Deleted
+
+Generate match for not soft deleted models (deleted_at == nil).
+
+```go
+// Signature:
+Deleted() MongoPipeline
+
+// Example:
+pipe.Deleted()
+```
+
+#### Trashes
+
+Generate generate match for soft deleted models (deleted_at != nil).
+
+```go
+// Signature:
+Trashes() MongoPipeline
+
+// Example:
+pipe.Trashes() // remove password from result
+```
+
+#### NotBackedUp
+
+Generate generate match query for not backed up records.
+
+```go
+// Signature:
+NotBackedUp() MongoPipeline
+
+// Example:
+pipe.NotBackedUp()
 ```
 
 #### Build

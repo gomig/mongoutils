@@ -11,12 +11,7 @@ import (
 
 func TestIrCity(t *testing.T) {
 	host := "mongodb://127.0.0.1:27017/?directConnection=true"
-	client, err := mongo.NewClient(options.Client().ApplyURI(host))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = client.Connect(context.TODO())
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(host))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,6 +1,7 @@
 package mongoutils
 
 import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -142,6 +143,24 @@ func (me *mPipe) Project(projects any) MongoPipeline {
 	}
 	return me.Add(func(d MongoDoc) MongoDoc {
 		return d.Add("$project", projects)
+	})
+}
+
+func (me *mPipe) Deleted() MongoPipeline {
+	return me.Add(func(d MongoDoc) MongoDoc {
+		return d.Add("$match", primitive.M{"deleted_at": nil})
+	})
+}
+
+func (me *mPipe) Trashes() MongoPipeline {
+	return me.Add(func(d MongoDoc) MongoDoc {
+		return d.Add("$match", primitive.M{"deleted_at": primitive.M{"$ne": nil}})
+	})
+}
+
+func (me *mPipe) NotBackedUp() MongoPipeline {
+	return me.Add(func(d MongoDoc) MongoDoc {
+		return d.Add("$match", primitive.M{"last_backup": nil})
 	})
 }
 

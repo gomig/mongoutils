@@ -36,6 +36,12 @@ type MongoPipeline interface {
 	UnProject(fields ...string) MongoPipeline
 	// Project add $project stage. skip nil input
 	Project(projects any) MongoPipeline
+	// Deleted generate match for not soft deleted models (deleted_at == nil)
+	Deleted() MongoPipeline
+	// Trashes generate match for soft deleted models (deleted_at != nil)
+	Trashes() MongoPipeline
+	// NotBackedUp generate match query for not backed up records
+	NotBackedUp() MongoPipeline
 	// Build generate mongo pipeline
 	Build() mongo.Pipeline
 }
