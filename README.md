@@ -240,9 +240,26 @@ Two `PrepareInsert` and `PrepareUpdate` must called before save model to databas
 
 **Note**: if `true` passed to `PrepareUpdate` method, `updated_at` method not updated.
 
+## Checksum
+
+this interface create checksum for model `map[string]any` after sorting fields. it can use to track model changes.
+
+**Caution:** model map only can contains primitive types and slices.
+
+```go
+import "github.com/gomig/mongoutils"
+modelMap := map[string]any{
+    "_id": person.ID,
+    "name": person.Name,
+}
+
+cs := mongoutils.NewChecksum(modelMap)
+fmt.Println(cs.MD5()) // data signature
+```
+
 ## SoftDeletes
 
-To soft delete models you must embed `SoftDeleteModel` in your struct. soft delte model contains `deleted_at` field and shown delete state of field.
+To soft delete models you must embed `SoftDeleteModel` in your `struct`. soft delete model contains `deleted_at` field and shown delete state of field.
 
 **Cation:** To soft delete model you must call `SoftDelete()` method of model and `Update` instead of `Delete` on database.
 
@@ -273,9 +290,9 @@ Backup interface to help backup records only if data changed. `BackupModel` cont
 - **checksum:** md5 checksum of normalized and sorted fields map.
 - **last_backup:** last backup date. this field will set to `nil` when data changed and must set when data backup done.
 
-**Cation:** Never return any struct field from `ToMap` method!
-
 **Note:** to handle deletion backup you must implement `SoftDelete`.
+
+**Cation:** Never return any struct field from `ToMap` method!
 
 ```go
 // Usage:
@@ -302,11 +319,6 @@ func (me Person) ToMap() map[string]any{
 // ToMap get model as map for backup
 // return nil or empty map to skip backup
 ToMap() map[string]any
-// CanBackup check if ToMap method not nil
-CanBackup() bool
-// MD5 calculate md5 checksum for model data
-// Returns empty string if CanBackup return false
-MD5() string
 // SetChecksum set model md5 checksum
 SetChecksum(string)
 // GetChecksum get model md5 checksum
@@ -318,6 +330,10 @@ MarkBackup()
 // UnMarkBackup set backup state to nil
 UnMarkBackup()
 ```
+
+### Helpers
+
+By default mongoutils repository methods `mongoutils.Insert` and `mongoutils.Update` will update backup related records. but you can use `FillBackupFields` and `ModelHasChanged` helpers to track backup model fields change.
 
 ## Doc Builder
 

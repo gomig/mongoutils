@@ -20,6 +20,9 @@ func NewChecksum(data map[string]any) Checksum {
 }
 
 func (recv Checksum) MD5() string {
+	if recv.data == nil {
+		return ""
+	}
 	md5 := md5.Sum([]byte(recv.Normalize()))
 	return fmt.Sprintf("%x", md5)
 }

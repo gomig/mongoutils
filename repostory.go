@@ -155,7 +155,8 @@ func InsertCtx[T any](
 	model := modelSafe(v)
 	opt := optionOf(opts...)
 	model.Cleanup()
-	model.PrepareInsert()
+	model.FillCreatedAt()
+	FillBackupFields(v)
 	model.OnInsert(ctx, opts...)
 	if res, err := model.Collection(opt.Database).InsertOne(ctx, model); err != nil {
 		return res, err
@@ -184,12 +185,12 @@ func Insert[T any](v *T, opts ...MongoOption) (*mongo.InsertOneResult, error) {
 //
 // @param ctx operation context
 // @param v model
-// @param silent disable update meta (updated_at)
+// @param isSilent disable update meta (updated_at)
 // @opts operation option
 func UpdateCtx[T any](
 	ctx context.Context,
 	v *T,
-	silent bool,
+	isSilent bool,
 	opts ...MongoOption,
 ) (*mongo.UpdateResult, error) {
 	model := modelSafe(v)
@@ -198,8 +199,20 @@ func UpdateCtx[T any](
 	if err != nil {
 		return nil, err
 	}
+	// Handle model changes
 	model.Cleanup()
-	model.PrepareUpdate(silent)
+	isChanged := true
+	oldCS, _ := modelChecksum(old)
+	if cs, backup := modelChecksum(v); cs != "" {
+		if cs != oldCS {
+			backup.SetChecksum(cs)
+			backup.UnMarkBackup()
+		}
+		isChanged = cs != oldCS
+	}
+	if !isSilent && isChanged {
+		model.FillUpdatedAt()
+	}
 	model.OnUpdate(ctx, opts...)
 	if res, err := model.Collection(opt.Database).UpdateByID(ctx, model.GetID(), Set(model)); err != nil {
 		return nil, err

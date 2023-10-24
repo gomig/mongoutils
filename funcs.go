@@ -103,3 +103,20 @@ func SetNested(k string, v any) primitive.M {
 func Match(v any) primitive.M {
 	return primitive.M{"$match": v}
 }
+
+// FillBackupFields fill backup related fields of backup model
+func FillBackupFields(model any) bool {
+	if cs, backup := modelChecksum(model); cs != "" {
+		backup.SetChecksum(cs)
+		backup.UnMarkBackup()
+		return true
+	}
+	return false
+}
+
+// ModelHasChanged check if backup model fields changed
+func ModelHasChanged(old any, model any) bool {
+	oldCs, _ := modelChecksum(old)
+	newCs, _ := modelChecksum(model)
+	return newCs != "" && newCs != oldCs
+}

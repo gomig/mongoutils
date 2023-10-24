@@ -19,6 +19,10 @@ type Model interface {
 	Seed(db *mongo.Database) error
 	// Pipeline get model pipeline
 	Pipeline() MongoPipeline
+	// FillCreatedAt fill created_at parameter
+	FillCreatedAt()
+	// FillUpdatedAt fill updated_at parameter
+	FillUpdatedAt()
 	// NewId generate new id for model
 	NewId()
 	// SetID set model id
@@ -34,16 +38,6 @@ type Model interface {
 	// Cleanup document before save
 	// e.g set document field nil for ignore saving
 	Cleanup()
-	// PrepareInsert called by mongoutils Repository before insert
-	// this method fill created_at if not set on BaseModel
-	// this method fill Checksum and LastBackup if LastBackup if model implement Backup
-	PrepareInsert()
-	// PrepareInsert called by mongoutils Repository before update
-	// this method fill updated_at on BaseModel
-	// updated_at not changed if model implement Backup and backup data not change
-	// updated_at not changed if ghost mode is true
-	// this method fill Checksum and LastBackup if LastBackup if model implement Backup
-	PrepareUpdate(ghost bool)
 	// OnInsert function to call before insert
 	OnInsert(ctx context.Context, opt ...MongoOption)
 	// OnUpdate function to call before update
@@ -56,4 +50,29 @@ type Model interface {
 	OnUpdated(old any, ctx context.Context, opt ...MongoOption)
 	// OnDeleted function to call after delete
 	OnDeleted(ctx context.Context, opt ...MongoOption)
+}
+
+type SoftDelete interface {
+	// SoftDelete set deleted_at field to current date
+	SoftDelete()
+	// Restore set deleted_at field to nil
+	Restore()
+	// IsDeleted check if item soft deleted
+	IsDeleted() bool
+}
+
+type Backup interface {
+	// ToMap get model as map for backup
+	// return nil or empty map to skip backup
+	ToMap() map[string]any
+	// SetChecksum set model md5 checksum
+	SetChecksum(string)
+	// GetChecksum get model md5 checksum
+	GetChecksum() string
+	// NeedBackup check if record need backup
+	NeedBackup() bool
+	// MarkBackup set backup state to current date
+	MarkBackup()
+	// UnMarkBackup set backup state to nil
+	UnMarkBackup()
 }

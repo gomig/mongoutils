@@ -35,6 +35,15 @@ func (BaseModel) Pipeline() MongoPipeline {
 	return NewPipe()
 }
 
+func (model *BaseModel) FillCreatedAt() {
+	model.CreatedAt = time.Now()
+}
+
+func (model *BaseModel) FillUpdatedAt() {
+	now := time.Now()
+	model.UpdatedAt = &now
+}
+
 func (model *BaseModel) NewId() {
 	model.ID = primitive.NewObjectID()
 }
@@ -57,42 +66,14 @@ func (BaseModel) IsDeletable() bool {
 
 func (*BaseModel) Cleanup() {}
 
-func (model *BaseModel) PrepareInsert() {
-	if model.CreatedAt.IsZero() {
-		model.CreatedAt = time.Now().UTC()
-	}
-	if b, ok := parseAsBackup(model); ok && b.CanBackup() {
-		b.SetChecksum(b.MD5())
-		b.UnMarkBackup()
-	}
-}
-
-func (model *BaseModel) PrepareUpdate(ghost bool) {
-	isChanged := true
-	if b, ok := parseAsBackup(model); ok && b.CanBackup() {
-		newCS := b.MD5()
-		if b.GetChecksum() != newCS {
-			isChanged = true
-			b.SetChecksum(newCS)
-			b.UnMarkBackup()
-		} else {
-			isChanged = false
-		}
-	}
-	if !ghost && isChanged {
-		now := time.Now().UTC()
-		model.UpdatedAt = &now
-	}
-}
-
 func (*BaseModel) OnInsert(ctx context.Context, opt ...MongoOption) {}
 
 func (*BaseModel) OnUpdate(ctx context.Context, opt ...MongoOption) {}
 
 func (*BaseModel) OnDelete(ctx context.Context, opt ...MongoOption) {}
 
-func (*BaseModel) OnInserted(ctx context.Context, opt ...MongoOption) {}
+func (BaseModel) OnInserted(ctx context.Context, opt ...MongoOption) {}
 
-func (*BaseModel) OnUpdated(old any, ctx context.Context, opt ...MongoOption) {}
+func (BaseModel) OnUpdated(old any, ctx context.Context, opt ...MongoOption) {}
 
-func (*BaseModel) OnDeleted(ctx context.Context, opt ...MongoOption) {}
+func (BaseModel) OnDeleted(ctx context.Context, opt ...MongoOption) {}

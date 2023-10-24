@@ -66,6 +66,13 @@ func prettyLog(data any) {
 	fmt.Println(string(_bytes))
 }
 
+func modelChecksum(v any) (string, Backup) {
+	if model, ok := parseAsInterface[Backup](v); ok && model != nil {
+		return NewChecksum(model.ToMap()).MD5(), model
+	}
+	return "", nil
+}
+
 // modelSafe convert v to github.com/gomig/mongoutils.Model or panic
 func modelSafe[T any](v T) Model {
 	if _v, ok := any(v).(Model); !ok {
@@ -78,4 +85,9 @@ func modelSafe[T any](v T) Model {
 // Get new instance of github.com/gomig/mongoutils.Model or panic if T not implement model
 func typeModelSafe[T any]() Model {
 	return modelSafe(new(T))
+}
+
+func parseAsInterface[T any](v any) (T, bool) {
+	i, ok := v.(T)
+	return i, ok
 }
