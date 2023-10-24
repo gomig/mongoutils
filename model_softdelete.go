@@ -24,6 +24,6 @@ func (model *SoftDeleteModel) Restore() {
 	model.DeletedAt = nil
 }
 
-func (model *SoftDeleteModel) IsDeleted() bool {
+func (model SoftDeleteModel) IsDeleted() bool {
 	return model.DeletedAt != nil
 }

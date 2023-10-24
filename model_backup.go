@@ -34,15 +34,15 @@ type BackupModel struct {
 	LastBackup *time.Time `bson:"last_backup" json:"last_backup"`
 }
 
-func (model *BackupModel) ToMap() map[string]any {
+func (model BackupModel) ToMap() map[string]any {
 	panic("overide ToMap method for backup")
 }
 
-func (model *BackupModel) CanBackup() bool {
+func (model BackupModel) CanBackup() bool {
 	return len(model.ToMap()) > 0
 }
 
-func (model *BackupModel) MD5() string {
+func (model BackupModel) MD5() string {
 	if !model.CanBackup() {
 		return ""
 	}
@@ -54,11 +54,11 @@ func (model *BackupModel) SetChecksum(v string) {
 	model.Checksum = v
 }
 
-func (model *BackupModel) GetChecksum() string {
+func (model BackupModel) GetChecksum() string {
 	return model.Checksum
 }
 
-func (model *BackupModel) NeedBackup() bool {
+func (model BackupModel) NeedBackup() bool {
 	return model.LastBackup == nil
 }
 

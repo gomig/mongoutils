@@ -15,23 +15,23 @@ type BaseModel struct {
 	UpdatedAt *time.Time         `bson:"updated_at" json:"updated_at"`
 }
 
-func (*BaseModel) TypeName() string {
+func (BaseModel) TypeName() string {
 	return "unspecified"
 }
 
-func (*BaseModel) Collection(db *mongo.Database) *mongo.Collection {
+func (BaseModel) Collection(db *mongo.Database) *mongo.Collection {
 	panic("please override collection method")
 }
 
-func (*BaseModel) Index(db *mongo.Database) error {
+func (BaseModel) Index(db *mongo.Database) error {
 	return nil
 }
 
-func (*BaseModel) Seed(db *mongo.Database) error {
+func (BaseModel) Seed(db *mongo.Database) error {
 	return nil
 }
 
-func (*BaseModel) Pipeline() MongoPipeline {
+func (BaseModel) Pipeline() MongoPipeline {
 	return NewPipe()
 }
 
@@ -43,15 +43,15 @@ func (model *BaseModel) SetID(id primitive.ObjectID) {
 	model.ID = id
 }
 
-func (model *BaseModel) GetID() primitive.ObjectID {
+func (model BaseModel) GetID() primitive.ObjectID {
 	return model.ID
 }
 
-func (*BaseModel) IsEditable() bool {
+func (BaseModel) IsEditable() bool {
 	return true
 }
 
-func (*BaseModel) IsDeletable() bool {
+func (BaseModel) IsDeletable() bool {
 	return false
 }
 

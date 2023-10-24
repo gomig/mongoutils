@@ -12,23 +12,23 @@ type EmptyModel struct {
 	ID primitive.ObjectID `bson:"_id" json:"_id"`
 }
 
-func (*EmptyModel) TypeName() string {
+func (EmptyModel) TypeName() string {
 	return "unspecified"
 }
 
-func (*EmptyModel) Collection(db *mongo.Database) *mongo.Collection {
+func (EmptyModel) Collection(db *mongo.Database) *mongo.Collection {
 	panic("please override collection method")
 }
 
-func (*EmptyModel) Index(db *mongo.Database) error {
+func (EmptyModel) Index(db *mongo.Database) error {
 	return nil
 }
 
-func (*EmptyModel) Seed(db *mongo.Database) error {
+func (EmptyModel) Seed(db *mongo.Database) error {
 	return nil
 }
 
-func (*EmptyModel) Pipeline() MongoPipeline {
+func (EmptyModel) Pipeline() MongoPipeline {
 	return NewPipe()
 }
 
@@ -40,15 +40,15 @@ func (model *EmptyModel) SetID(id primitive.ObjectID) {
 	model.ID = id
 }
 
-func (model *EmptyModel) GetID() primitive.ObjectID {
+func (model EmptyModel) GetID() primitive.ObjectID {
 	return model.ID
 }
 
-func (*EmptyModel) IsEditable() bool {
+func (EmptyModel) IsEditable() bool {
 	return true
 }
 
-func (*EmptyModel) IsDeletable() bool {
+func (EmptyModel) IsDeletable() bool {
 	return false
 }
 

@@ -19,12 +19,12 @@ func NewChecksum(data map[string]any) Checksum {
 	return Checksum{data: data}
 }
 
-func (recv *Checksum) MD5() string {
+func (recv Checksum) MD5() string {
 	md5 := md5.Sum([]byte(recv.Normalize()))
 	return fmt.Sprintf("%x", md5)
 }
 
-func (recv *Checksum) Normalize() string {
+func (recv Checksum) Normalize() string {
 	val := reflect.ValueOf(recv.data)
 	if recv.isNil(val) || recv.isEmptyString(recv.data) {
 		return ""
