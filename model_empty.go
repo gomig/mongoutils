@@ -9,7 +9,7 @@ import (
 
 // EmptyModel only implement model methods
 type EmptyModel struct {
-	ID primitive.ObjectID `bson:"_id" json:"_id"`
+	ID primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
 }
 
 func (EmptyModel) TypeName() string {
