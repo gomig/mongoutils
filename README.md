@@ -818,7 +818,8 @@ mCounter.Add("services", "total", id2, 1)
 mCounter.Add("services", "total", id2, 1)
 mCounter.Add("services", "relations", id3, 3)
 mCounter.Add("services", "relations", nil, 3) // ignored
-mCounter.Add("services", "relations", id3, -3) // ignored because of 0
+mCounter.Sub("services", "relations", id3, 3) // ignored because of 0
+mCounter.Sub("customers", "rel", id1, 10) // decrement 10
 mCounter.Add("customers", "rel", id1, 4)
 mCounter.Add("customers", "rel", id2, 3)
 mCounter.Add("customers", "rel", id2, 1)

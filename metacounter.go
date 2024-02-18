@@ -3,8 +3,10 @@ package mongoutils
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type MetaCounter interface {
-	// Add new meta
+	// Add increase meta amount
 	Add(_col, _meta string, id *primitive.ObjectID, amount int64) MetaCounter
+	// Sub decrease meta amount
+	Sub(_col, _meta string, id *primitive.ObjectID, amount int64) MetaCounter
 	// Build get combined meta with query
 	Build() []MetaCounterResult
 }

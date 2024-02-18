@@ -32,6 +32,20 @@ func (mc *metaCounter) Add(_col string, _meta string, id *primitive.ObjectID, am
 	return mc
 }
 
+func (mc *metaCounter) Sub(_col string, _meta string, id *primitive.ObjectID, amount int64) MetaCounter {
+	if id != nil {
+		mc.addCol(_col)
+		for i, mt := range mc.Data[_col] {
+			if mt.ID == *id && mt.Meta == _meta {
+				mc.Data[_col][i].Amount -= amount
+				return mc
+			}
+		}
+		mc.Data[_col] = append(mc.Data[_col], meta{Meta: _meta, ID: *id, Amount: -amount})
+	}
+	return mc
+}
+
 func (mc *metaCounter) Build() []MetaCounterResult {
 	result := make([]MetaCounterResult, 0)
 	ignores := make(map[string]map[string]int64)
