@@ -52,6 +52,13 @@ type Model interface {
 	OnDeleted(ctx context.Context, opt ...MongoOption)
 }
 
+type SchemaVersioning interface {
+	// GetVersion get schema version
+	GetVersion() int
+	// SetVersion set schema version
+	SetVersion(int)
+}
+
 type SoftDelete interface {
 	// SoftDelete set deleted_at field to current date
 	SoftDelete()
