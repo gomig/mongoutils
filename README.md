@@ -283,6 +283,10 @@ john.Restore()
 deleted := john.IsDeleted()
 ```
 
+## Schema Versioning
+
+You can embed `SchemaModel` struct in your model to add `schema_version` int field to your model.
+
 ## Model Backup Interface
 
 Backup interface to help backup records only if data changed. `BackupModel` contains following fields:
