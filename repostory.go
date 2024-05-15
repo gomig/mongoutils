@@ -79,6 +79,55 @@ func Find[T any](filter any, sorts any, skip int64, limit int64, opts ...MongoOp
 	return FindCtx[T](ctx, filter, sorts, skip, limit, opts...)
 }
 
+// FindRaw find records from pipeline
+// option pipeline not effected
+//
+// @param ctx operation context
+// @param pipeline aggregation pipeline
+// @opts operation option
+func FindRawCtx[T any](
+	ctx context.Context,
+	pipeline MongoPipeline,
+	opts ...MongoOption,
+) ([]T, error) {
+	res := make([]T, 0)
+	model := modelSafe(new(T))
+	option := optionOf(opts...)
+	if option.DebugPipe {
+		fmt.Println("============= FIND RAW PIPE =============")
+		prettyLog(pipeline.Build())
+		fmt.Println("=========================================")
+	}
+
+	if option.DebugResult {
+		fmt.Println("============ FIND RAW DECODE ============")
+		if cur, err := model.Collection(option.Database).Aggregate(ctx, pipeline.Build(), AggregateOption()); err != nil {
+			fmt.Println("ERROR: " + err.Error())
+		} else {
+			defer cur.Close(ctx)
+			var _res []map[string]any
+			cur.All(ctx, &_res)
+			prettyLog(_res)
+		}
+		fmt.Println("=========================================")
+	}
+
+	if cur, err := model.Collection(option.Database).Aggregate(ctx, pipeline.Build(), AggregateOption()); err != nil {
+		return res, err
+	} else {
+		defer cur.Close(ctx)
+		if err := cur.All(ctx, &res); err != nil {
+			return res, err
+		}
+	}
+	return res, nil
+}
+func FindRaw[T any](pipeline MongoPipeline, opts ...MongoOption) ([]T, error) {
+	ctx, cancel := MongoOperationCtx()
+	defer cancel()
+	return FindRawCtx[T](ctx, pipeline, opts...)
+}
+
 // FindOne find one record
 //
 // @param ctx operation context
@@ -325,6 +374,53 @@ func Count[T any](filter any, opts ...MongoOption) (int64, error) {
 	return CountCtx[T](ctx, filter, opts...)
 }
 
+// CountRaw get records count
+// option Pipeline not effected
+//
+// @param ctx operation context
+// @param filter (ignored on nil)
+// @opts operation option
+func CountRawCtx[T any](
+	ctx context.Context,
+	pipeline MongoPipeline,
+	opts ...MongoOption,
+) (int64, error) {
+	model := typeModelSafe[T]()
+	option := optionOf(opts...)
+	pipeline.Add(func(d MongoDoc) MongoDoc { return d.Add("$count", "count") })
+	if option.DebugPipe {
+		fmt.Println("=============== COUNT PIPE ===============")
+		prettyLog(pipeline.Build())
+		fmt.Println("==========================================")
+	}
+	if cur, err := model.Collection(option.Database).Aggregate(ctx, pipeline.Build(), AggregateOption()); err != nil {
+		return 0, err
+	} else {
+		defer cur.Close(ctx)
+		for cur.Next(ctx) {
+			if option.DebugResult {
+				var _res map[string]any
+				cur.Decode(&_res)
+				fmt.Println("=============== COUNT DECODE ===============")
+				prettyLog(_res)
+				fmt.Println("============================================")
+			}
+			rec := new(countResult)
+			if err := cur.Decode(rec); err != nil {
+				return 0, err
+			} else {
+				return rec.Count, nil
+			}
+		}
+	}
+	return 0, nil
+}
+func CountRaw[T any](filter any, opts ...MongoOption) (int64, error) {
+	ctx, cancel := MongoOperationCtx()
+	defer cancel()
+	return CountCtx[T](ctx, filter, opts...)
+}
+
 // BatchUpdate update multiple records
 //
 // @param ctx operation context
@@ -419,7 +515,6 @@ func IncrementCtx[T any](
 		return res, nil
 	}
 }
-
 func Increment[T any](condition any, data any, opts ...MongoOption) (*mongo.UpdateResult, error) {
 	ctx, cancel := MongoOperationCtx()
 	defer cancel()

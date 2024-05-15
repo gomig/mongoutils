@@ -49,7 +49,7 @@ AggregateOption() *options.AggregateOptions
 Generate transaction option with majority write and snapshot read.
 
 ```go
-AggregateOption() *options.AggregateOptions
+TxOption() *options.TransactionOptions
 ```
 
 ### Array
@@ -897,6 +897,8 @@ You can define multiple Pipeline methods for your model and use them to fetch da
 
 Find find records.
 
+**NOTE:** You can use **FindRaw** method to get result with raw query.
+
 ```go
 // Signature
 func Find[T any](
@@ -981,6 +983,8 @@ func Delete[T any](
 ### Count
 
 Get records count.
+
+**NOTE:** You can use **CountRaw** method to get records count with raw query.
 
 ```go
 // Signature
