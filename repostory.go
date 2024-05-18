@@ -206,7 +206,9 @@ func InsertCtx[T any](
 	model.Cleanup()
 	model.FillCreatedAt()
 	FillBackupFields(v)
-	model.OnInsert(ctx, opts...)
+	if !opt.IgnoreHooks {
+		model.OnInsert(ctx, opts...)
+	}
 	if res, err := model.Collection(opt.Database).InsertOne(ctx, model); err != nil {
 		return res, err
 	} else {
@@ -219,7 +221,9 @@ func InsertCtx[T any](
 			return res, errors.New("no ObjectId returned")
 		} else {
 			model.SetID(id)
-			model.OnInserted(ctx, opts...)
+			if !opt.IgnoreHooks {
+				model.OnInserted(ctx, opts...)
+			}
 			return res, nil
 		}
 	}
@@ -262,7 +266,9 @@ func UpdateCtx[T any](
 	if !isSilent && isChanged {
 		model.FillUpdatedAt()
 	}
-	model.OnUpdate(ctx, opts...)
+	if !opt.IgnoreHooks {
+		model.OnUpdate(ctx, opts...)
+	}
 	if res, err := model.Collection(opt.Database).UpdateByID(ctx, model.GetID(), Set(model)); err != nil {
 		return nil, err
 	} else {
@@ -271,7 +277,7 @@ func UpdateCtx[T any](
 			prettyLog(res)
 			fmt.Println("=========================================")
 		}
-		if res.ModifiedCount+res.UpsertedCount > 0 {
+		if res.ModifiedCount+res.UpsertedCount > 0 && !opt.IgnoreHooks {
 			model.OnUpdated(old, ctx, opts...)
 		}
 		return res, nil
@@ -295,7 +301,9 @@ func DeleteCtx[T any](
 ) (*mongo.DeleteResult, error) {
 	model := modelSafe(v)
 	opt := optionOf(opts...)
-	model.OnDelete(ctx, opts...)
+	if !opt.IgnoreHooks {
+		model.OnDelete(ctx, opts...)
+	}
 	if res, err := model.Collection(opt.Database).DeleteOne(ctx, primitive.M{"_id": model.GetID()}); err != nil {
 		return nil, err
 	} else {
@@ -304,7 +312,9 @@ func DeleteCtx[T any](
 			prettyLog(res)
 			fmt.Println("=========================================")
 		}
-		model.OnDeleted(ctx, opts...)
+		if !opt.IgnoreHooks {
+			model.OnDeleted(ctx, opts...)
+		}
 		return res, nil
 	}
 }

@@ -195,11 +195,15 @@ Index(db *mongo.Database) error
 Seed(db *mongo.Database) error
 // Pipeline get model pipeline
 Pipeline() MongoPipeline
-// NewId generate new id for model (Pointer)
+// FillCreatedAt fill created_at parameter with current time
+FillCreatedAt()
+// FillUpdatedAt fill updated_at parameter with current time
+FillUpdatedAt()
+// NewId generate new id for model
 NewId()
-// SetID set model id (Pointer)
+// SetID set model id
 SetID(id primitive.ObjectID)
-// GetID get model id
+// ID get model id
 GetID() primitive.ObjectID
 // IsEditable check if document is editable
 // by default returns true on BaseModel
@@ -210,35 +214,25 @@ IsDeletable() bool
 // Cleanup document before save
 // e.g set document field nil for ignore saving
 Cleanup()
-// PrepareInsert called by mongoutils Repository before insert
-// this method fill created_at if not set on BaseModel
-// this method fill Checksum and LastBackup if LastBackup if model implement Backup
-PrepareInsert()
-// PrepareInsert called by mongoutils Repository before update
-// this method fill updated_at on BaseModel
-// updated_at not changed if model implement Backup and backup data not change
-// updated_at not changed if ghost mode is true
-// this method fill Checksum and LastBackup if LastBackup if model implement Backup
-PrepareUpdate(ghost bool)
-// OnInsert function to call before insert (Pointer)
-OnInsert(ctx context.Context, opt ...MongoOption)
-// OnUpdate function to call before update (Pointer)
-OnUpdate(ctx context.Context, opt ...MongoOption)
-// OnDelete function to call before delete (Pointer)
-OnDelete(ctx context.Context, opt ...MongoOption)
-// OnInserted function to call after insert
-OnInserted(ctx context.Context, opt ...MongoOption)
-// OnUpdated function to call after update
-OnUpdated(old any, ctx context.Context, opt ...MongoOption)
-// OnDeleted function to call after delete
-OnDeleted(ctx context.Context, opt ...MongoOption)
+// OnInsert function to call before insert with repository Insert function
+OnInsert(ctx context.Context, opt ...MongoOption) error
+// OnUpdate function to call before update with repository Update function
+OnUpdate(ctx context.Context, opt ...MongoOption) error
+// OnDelete function to call before delete with repository Delete function
+OnDelete(ctx context.Context, opt ...MongoOption) error
+// OnInserted function to call after insert with repository Insert function
+OnInserted(ctx context.Context, opt ...MongoOption) error
+// OnUpdated function to call after update with repository Update function
+OnUpdated(old any, ctx context.Context, opt ...MongoOption) error
+// OnDeleted function to call after delete with repository Delete function
+OnDeleted(ctx context.Context, opt ...MongoOption) error
 ```
 
 ### Required Methods
 
-Two `PrepareInsert` and `PrepareUpdate` must called before save model to database.
+`OnInsert`, `OnUpdate`, `OnDelete`, `OnInserted`, `OnUpdated`, `OnDeleted` are model **Hooks** and called with repository `Insert`, `Update` and `Delete` function.
 
-**Note**: if `true` passed to `PrepareUpdate` method, `updated_at` method not updated.
+**Note**: if `IgnoreHooks` option passed to repository option **Hooks** not called with repository.
 
 ## Checksum
 

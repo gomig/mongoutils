@@ -19,9 +19,9 @@ type Model interface {
 	Seed(db *mongo.Database) error
 	// Pipeline get model pipeline
 	Pipeline() MongoPipeline
-	// FillCreatedAt fill created_at parameter
+	// FillCreatedAt fill created_at parameter with current time
 	FillCreatedAt()
-	// FillUpdatedAt fill updated_at parameter
+	// FillUpdatedAt fill updated_at parameter with current time
 	FillUpdatedAt()
 	// NewId generate new id for model
 	NewId()
@@ -38,18 +38,18 @@ type Model interface {
 	// Cleanup document before save
 	// e.g set document field nil for ignore saving
 	Cleanup()
-	// OnInsert function to call before insert
-	OnInsert(ctx context.Context, opt ...MongoOption)
-	// OnUpdate function to call before update
-	OnUpdate(ctx context.Context, opt ...MongoOption)
-	// OnDelete function to call before delete
-	OnDelete(ctx context.Context, opt ...MongoOption)
-	// OnInserted function to call after insert
-	OnInserted(ctx context.Context, opt ...MongoOption)
-	// OnUpdated function to call after update
-	OnUpdated(old any, ctx context.Context, opt ...MongoOption)
-	// OnDeleted function to call after delete
-	OnDeleted(ctx context.Context, opt ...MongoOption)
+	// OnInsert function to call before insert with repository Insert function
+	OnInsert(ctx context.Context, opt ...MongoOption) error
+	// OnUpdate function to call before update with repository Update function
+	OnUpdate(ctx context.Context, opt ...MongoOption) error
+	// OnDelete function to call before delete with repository Delete function
+	OnDelete(ctx context.Context, opt ...MongoOption) error
+	// OnInserted function to call after insert with repository Insert function
+	OnInserted(ctx context.Context, opt ...MongoOption) error
+	// OnUpdated function to call after update with repository Update function
+	OnUpdated(old any, ctx context.Context, opt ...MongoOption) error
+	// OnDeleted function to call after delete with repository Delete function
+	OnDeleted(ctx context.Context, opt ...MongoOption) error
 }
 
 type SchemaVersioning interface {

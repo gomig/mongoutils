@@ -58,14 +58,26 @@ func (EmptyModel) IsDeletable() bool {
 
 func (*EmptyModel) Cleanup() {}
 
-func (*EmptyModel) OnInsert(ctx context.Context, opt ...MongoOption) {}
+func (*EmptyModel) OnInsert(ctx context.Context, opt ...MongoOption) error {
+	return nil
+}
 
-func (*EmptyModel) OnUpdate(ctx context.Context, opt ...MongoOption) {}
+func (*EmptyModel) OnUpdate(ctx context.Context, opt ...MongoOption) error {
+	return nil
+}
 
-func (*EmptyModel) OnDelete(ctx context.Context, opt ...MongoOption) {}
+func (*EmptyModel) OnDelete(ctx context.Context, opt ...MongoOption) error {
+	return nil
+}
 
-func (EmptyModel) OnInserted(ctx context.Context, opt ...MongoOption) {}
+func (EmptyModel) OnInserted(ctx context.Context, opt ...MongoOption) error {
+	return nil
+}
 
-func (EmptyModel) OnUpdated(old any, ctx context.Context, opt ...MongoOption) {}
+func (EmptyModel) OnUpdated(old any, ctx context.Context, opt ...MongoOption) error {
+	return nil
+}
 
-func (EmptyModel) OnDeleted(ctx context.Context, opt ...MongoOption) {}
+func (EmptyModel) OnDeleted(ctx context.Context, opt ...MongoOption) error {
+	return nil
+}

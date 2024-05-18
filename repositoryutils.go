@@ -14,6 +14,7 @@ type countResult struct {
 }
 
 type MongoOption struct {
+	IgnoreHooks bool
 	DebugPipe   bool
 	DebugResult bool
 	Pipeline    string
